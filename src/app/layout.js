@@ -1,14 +1,15 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto } from 'next/font/google';
 import "./globals.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import CustomNavbar from "../components/Navbar";
+import Footer from "../components/Footer.jsx";
+import SessionWrapper from "../components/SessionWrapper";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const roboto = Roboto({
+  weight: ['400', '700'], // Specify the font weights you need
+  subsets: ['latin'], // Specify the subsets you need
+  display: 'swap', // Ensure text remains visible during webfont load
 });
 
 export const metadata = {
@@ -19,8 +20,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+      <body className={`${roboto.className} `}>
+        <SessionWrapper>
+          <CustomNavbar />
+          <main>
+            {children}
+          </main>
+          <Footer />
+        </SessionWrapper>
       </body>
     </html>
   );
