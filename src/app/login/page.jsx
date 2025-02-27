@@ -1,5 +1,5 @@
 "use client";
-import { signIn } from "next-auth/react";
+// import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -57,7 +57,7 @@ export default function Login() {
                     </div>
                     <div className="w-100 text-md-start text-center font-size-14 mb-4">
                         <Link href="/guestuser" className="underline text-black ">Continue as guest user</Link>
-                        <button className="underline text-black "  onClick={() => signIn("google")}>Continue with Google</button>
+{/*                         <button className="underline text-black "  onClick={() => signIn("google")}>Continue with Google</button> */}
                     </div>
                 </form>
                 <div className="d-none d-lg-flex col-lg-6 bg-custom-gray">
