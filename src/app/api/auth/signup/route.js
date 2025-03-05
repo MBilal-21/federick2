@@ -1,27 +1,155 @@
-import db from "@/lib/db";  // ✅ Use shared MySQL connection
+import db from "@/lib/db";
 import bcrypt from "bcryptjs";
+// import { signIn } from "next-auth/react";
 
 export async function POST(req) {
   const { first_name, last_name, email, phone, password } = await req.json();
-
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    const [existingUser] = await db.execute(
-      "SELECT * FROM users WHERE email = ?",
-      [email]
-    );
+    const [existingUser] = await db.execute("SELECT email FROM users_data WHERE email = ?", [email]);
+    const [existingUserNumber] = await db.execute("SELECT phone FROM users_data WHERE phone = ?", [phone]);
+
     if (existingUser.length) {
       return Response.json({ message: "Email already in use" }, { status: 400 });
     }
+    if (existingUserNumber.length) {
+      return Response.json({ message: "Phone Number already in use" }, { status: 400 });
+    }
 
+    // Insert new user
     await db.execute(
-      "INSERT INTO users (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO users_data (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
       [first_name, last_name, email, phone, hashedPassword]
     );
 
-    return Response.json({ message: "User registered successfully" }, { status: 201 });
+    // Return email so frontend can log in the user
+    return Response.json({ message: "User registered successfully", email }, { status: 201 });
   } catch (error) {
-    return Response.json({ message: "Error registering user", error }, { status: 500 });
+    console.error("Signup Error:", error);
+    return Response.json({ message: "Error registering user", error: error.message }, { status: 500 });
   }
 }
+
+
+
+
+// import db from "@/lib/db"; // ✅ Use shared MySQL connection
+// import bcrypt from "bcryptjs";
+// import jwt from "jsonwebtoken";
+
+// export async function POST(req) {
+//   const { first_name, last_name, email, phone, password } = await req.json();
+
+//   const hashedPassword = await bcrypt.hash(password, 10);
+//   const SECRET_KEY = process.env.JWT_SECRET || "your_secret_key"; // Use a strong secret in .env
+
+//   try {
+//     const [existingUser] = await db.execute(
+//       "SELECT email FROM users_data WHERE email = ?",
+//       [email]
+//     );
+//     const [existingUserNumber] = await db.execute(
+//       "SELECT phone FROM users_data WHERE phone = ?",
+//       [phone]
+//     );
+
+//     if (existingUser.length) {
+//       return Response.json({ message: "Email already in use" }, { status: 400 });
+//     }
+//     if (existingUserNumber.length) {
+//       return Response.json({ message: "Phone Number already in use" }, { status: 400 });
+//     }
+
+//     // Insert user into database
+//     await db.execute(
+//       "INSERT INTO users_data (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
+//       [first_name, last_name, email, phone, hashedPassword]
+//     );
+
+//     // Generate a JWT token
+//     const token = jwt.sign(
+//       { email, first_name, last_name, phone }, // Payload
+//       SECRET_KEY,
+//       { expiresIn: "7d" } // Token valid for 7 days
+//     );
+
+//     return Response.json(
+//       {
+//         message: "User registered successfully",
+//         token, // Send token in response
+//       },
+//       { status: 201 }
+//     );
+//   } catch (error) {
+//     console.error("Signup Error:", error);
+//     return Response.json(
+//       { message: "Error registering user", error: error.message },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+// // import db from "@/lib/db";  // ✅ Use shared MySQL connection
+// // import bcrypt from "bcryptjs";
+
+// // export async function POST(req) {
+// //   const { first_name, last_name, email, phone, password } = await req.json();
+
+// //   const hashedPassword = await bcrypt.hash(password, 10);
+
+// //   try {
+// //     const [existingUser] = await db.execute(
+// //       "SELECT email FROM users_data WHERE email = ?",
+// //       [email]
+// //     );
+// //     const [existingUserNumber] = await db.execute(
+// //       "SELECT phone FROM users_data WHERE phone = ?",
+// //       [phone]
+// //     );
+
+// //     if (existingUser.length) {
+// //       return Response.json({ message: "Email already in use" }, { status: 400 });
+// //     }
+// //     if (existingUserNumber.length) {      
+// //       return Response.json({ message: "Phone Number already in use" }, { status: 400 });
+// //     }
+
+// //     await db.execute(
+// //       "INSERT INTO users_data (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
+// //       [first_name, last_name, email, phone, hashedPassword]
+// //     );
+
+// //     return Response.json({ message: "User registered successfully" }, { status: 201 });
+// //   } catch (error) {
+// //     console.error("Signup Error:", error); // Log full error
+// //     return Response.json({ message: "Error registering user", error: error.message }, { status: 500 });
+// //   }
+// // }
+
+
+// // // export async function POST(req) {
+// // //   const { first_name, last_name, email, phone, password } = await req.json();
+
+// // //   const hashedPassword = await bcrypt.hash(password, 10);
+
+// // //   try {
+// // //     const [existingUser] = await db.execute(
+// // //       "SELECT * FROM users_data WHERE email = ?",
+// // //       [email]
+// // //     );
+// // //     if (existingUser.length) {
+// // //       return Response.json({ message: "Email already in use" }, { status: 400 });
+// // //     }
+
+// // //     await db.execute(
+// // //       "INSERT INTO users_data (first_name, last_name, email, phone, password) VALUES (?, ?, ?, ?, ?)",
+// // //       [first_name, last_name, email, phone, hashedPassword]
+// // //     );
+
+// // //     return Response.json({ message: "User registered successfully" }, { status: 201 });
+// // //   } catch (error) {
+// // //     return Response.json({ message: "Error registering user", error }, { status: 500 });
+// // //   }
+// // // }

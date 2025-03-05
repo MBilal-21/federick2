@@ -1,0 +1,12 @@
+
+.active{
+  background-color: var(--bs-custom-gray) !important;
+}
+/* .tabdiv{
+  width: max-content;
+} */
+.tabdiv .tab{
+  border: 1px solid var(--bs-custom-gray-light) !important;
+  text-wrap: none;
+  white-space: nowrap;
+}

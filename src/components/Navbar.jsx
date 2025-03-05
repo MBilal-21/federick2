@@ -1,16 +1,27 @@
 "use client";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { Phone, Facebook, Twitter, User,Menu } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { data: session } = useSession(); // Get session data
-  const [dynamicBg, setdynamicBg] = useState("bg-custom-red");
-  window.addEventListener("resize", () => {
-    setdynamicBg(window.innerWidth < 576 ?  "bg-black" : "bg-custom-red" );
-  });
+  const [dynamicBg, setDynamicBg] = useState("bg-custom-red");
+  useEffect(() => {
+    const updateBg = () => {
+      setDynamicBg(window.innerWidth < 576 ? "bg-black" : "bg-custom-red");
+    };
+    // Run on mount
+    updateBg();
+    // Attach event listener
+    window.addEventListener("resize", updateBg);
+    // Cleanup event listener on unmount
+    return () => window.removeEventListener("resize", updateBg);
+  }, []);
+  // window.addEventListener("resize", () => {
+  //   setdynamicBg(window.innerWidth < 576 ?  "bg-black" : "bg-custom-red" );
+  // });
   const [isNavOpen, setIsNavOpen] = useState(false);
 
   const toggleNav = () => {
