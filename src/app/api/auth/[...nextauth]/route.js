@@ -8,8 +8,6 @@ import { cookies } from "next/headers";
 // import { signOut } from "next-auth/react";
 
 function clearToken(tokenName) {
-  console.log("clearing token", tokenName);
-
   const cookieStore = cookies();
   cookieStore.delete(tokenName);
 }
