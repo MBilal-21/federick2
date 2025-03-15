@@ -4,6 +4,15 @@ import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
 import db from "@/lib/db";  // ✅ Use shared MySQL pool
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
+// import { signOut } from "next-auth/react";
+
+function clearToken(tokenName) {
+  console.log("clearing token", tokenName);
+
+  const cookieStore = cookies();
+  cookieStore.delete(tokenName);
+}
 
 export const authOptions = {
   session: { strategy: "jwt" },
@@ -64,17 +73,18 @@ export const authOptions = {
           );
         }
       }
+      clearToken("guest_token");
       return true;
     },
-
     async jwt({ token, user }) {
       if (user) token.user = user;
       return token;
     },
     async session({ session, token }) {
-      session.user = token.user;
+      session.user = token.user || { id: "guest", role: "guest" };
       return session;
     },
+
   },
 };
 

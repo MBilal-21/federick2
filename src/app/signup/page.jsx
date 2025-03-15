@@ -3,7 +3,6 @@ import Image from "next/image";
 import {useEffect, useReducer } from "react";
 import { Check } from 'lucide-react';
 import style from './page.module.css';
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {useSession, signIn } from "next-auth/react";
 import Loading from "@/components/Loading";
@@ -45,7 +44,7 @@ export default function Signup() {
     console.log(status);
     
     if (status === "authenticated") {
-      redirectUser("/welcome-back"); // Redirect to welcome page
+      redirectUser("/booking"); // Redirect to /booking page
     }
   }, [status, router]);
 
@@ -83,44 +82,7 @@ export default function Signup() {
     return Object.keys(errors).length === 0;
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (validateForm()) {
-  //     try {
-  //       const response = await fetch("/api/auth/signup", {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({
-  //           first_name: state.firstName,
-  //           last_name: state.lastName,
-  //           email: state.email,
-  //           phone: state.phoneNumber,
-  //           password: state.password,
-  //         }),
-  //       });
-
-  //       const result = await response.json();
-
-  //       if (!response.ok) {
-  //         throw new Error(result.message);
-  //       }
-
-  //       console.log("User registered successfully:", result);
-  //       alert("Signup successful!");
-  //       dispatch({ type: "RESET_FORM" });
-  //       tryLogin();
-  //     } catch (error) {
-  //       console.error("Signup error:", error.message);
-  //       alert(error.message);
-  //     }
-
-  //   }
-  // };
-
-
   // --------------------------------------------------------------------------------------------
-
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -161,8 +123,8 @@ const handleSubmit = async (e) => {
         throw new Error(loginResult.error);
       }
 
-      // Redirect to welcome-back if login is successful
-      redirectUser("/welcome-back");
+      // Redirect to /booking if login is successful
+      redirectUser("/booking");
       
     } catch (error) {
       console.error("Signup error:", error.message);
@@ -231,8 +193,8 @@ const handleSubmit = async (e) => {
                 value={state.wayToConnect}
                 onChange={(e) => dispatch({ type: "SET_FIELD", field: "wayToConnect", value: e.target.value })}
               >
-                <option value="Email">Email</option>
-                <option value="phoneNumber">Phone Number</option>
+                <option value="email">Email</option>
+                <option value="phone">Phone Number</option>
               </select>
             </div>
           </div>

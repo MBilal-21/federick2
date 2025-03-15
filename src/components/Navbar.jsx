@@ -4,8 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Phone, Facebook, Twitter, User,Menu } from "lucide-react";
 import { useEffect, useState } from "react";
+// import {clearToken } from "./clear-token";
 
 export default function Navbar() {
+  
   const { data: session } = useSession(); // Get session data
   const [dynamicBg, setDynamicBg] = useState("bg-custom-red");
   useEffect(() => {
@@ -23,10 +25,27 @@ export default function Navbar() {
   //   setdynamicBg(window.innerWidth < 576 ?  "bg-black" : "bg-custom-red" );
   // });
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const clearToken = async () => {
+    try {
+      const response = await fetch("/api/token", { method: "DELETE" });
+  
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to clear token");
+  
+      console.log(data.message); // Success message
+    } catch (error) {
+      console.error("Error:", error.message);
+    }
+  };
 
   const toggleNav = () => {
     setIsNavOpen(!isNavOpen);
   };
+  const handleLogout = async () => {
+    await clearToken();
+   signOut();
+  };
+
   return (
     <header className="w-100">
       {/* Top Bar */}
@@ -58,12 +77,12 @@ export default function Navbar() {
 
             {/* Action Buttons */}
             <div className="d-none d-sm-flex gap-2 ">
-              <Link href="/book" className="btn btn-dark btn-sm rounded-0 p-2 font-size-14">
+              <Link href="/booking" className="btn btn-dark btn-sm rounded-0 p-2 font-size-14">
                 BOOK NOW
               </Link>
               
               {session ? (
-                 <button onClick={() => signOut()} className="btn btn-dark btn-sm rounded-0 p-2 font-size-14">
+                 <button onClick={() =>{ handleLogout()}} className="btn btn-dark btn-sm rounded-0 p-2 font-size-14">
                  LOGOUT
                </button>
                  
@@ -85,7 +104,7 @@ export default function Navbar() {
           <Link href="/" title="Go to Home" className="navbar-brand flex-grow-1">
             {/* Uncomment and replace with your logo */}
             <Image
-              src="frederick_logo.svg"
+              src="/frederick_logo.svg"
               alt="Frederick Sedan Service"
               width={146}
               height={65}
@@ -121,7 +140,7 @@ export default function Navbar() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link href="/book"  title="Booking" className="nav-link text-dark  font-size-16 hover-opacity-75">
+                <Link href="/booking"  title="Booking" className="nav-link text-dark  font-size-16 hover-opacity-75">
                   BOOK NOW
                 </Link>
               </li>

@@ -2,32 +2,81 @@
 import Image from "next/image";
 import { Check } from 'lucide-react';
 import style from './page.module.css'
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Tabs from "@/components/Tabs";
 
 
 export default function PickDrop() {
-    const [pickup, setPickup] = useState('')
-    const [dropOff, setDropOff] = useState('')
+    const [pickup, setPickup] = useState('');
+    const [dropOff, setDropOff] = useState('');
+    const [errors, setErrors] = useState({});
     const router = useRouter();
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        // Handle login logic here
+    // use effect
+    useEffect(() => {
+            async function fetchToken() {
+              const res = await fetch("/api/token");
+              const data = await res.json();
+              if (!data.tokenData || !data.tokenData.formData.step1   ) {
+                router.push("/booking"); // Redirect if no token
+            } else if (!data.tokenData.formData.step2) {
+                router.push("/booking/travel-details"); // Redirect if no token\
+            }
+            const newData =  data.tokenData?.formData.step3 || null;
+              if (newData) {
+                setPickup(newData.pickup || "");
+                setDropOff(newData.dropOff || "");
+               
+              }
+              console.log(data.tokenData.formData);
+              console.log(data.tokenData);
+              
+            }
+            fetchToken();
+          }, []);
+
+    // form validation
+    function validateForm() {
+        let newErrors = {};
+        if (!pickup.trim()) newErrors.pickup = "Pickup Address is required";
+        if (!dropOff.trim()) newErrors.dropOff = "Drop-off Address is required";
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     }
+
+    // handling form submition
+    async function handleSubmit(e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+        const step3 = { pickup, dropOff};
+        const response= await fetch("/api/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({step3}),
+        });
+        const result = await response.json();
+        console.log(result);
+        alert(result.message);
+        
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+    
+        // Navigate to next form
+        router.push("/booking/select-car");
+      }
 
     return (
 
         <div className="container mt-4 mb-4 ">
-             {/* Tabs code start*/}
-             <div className="my-3 d-flex flex-nowrap justify-content-start gap-3 scrollbarDiv">
-                <Tabs text="Personal info" active={false} link="/welcome-back" />
-                <Tabs text="Travel Details" active={false} link="/travel-details" />
-                <Tabs text="Pickup & Drop-off" active={true} link="/pickdrop" />
-                <Tabs text="Choose a ride" active={false} link="/select-car" />
-                <Tabs text="Comments" active={false} link="/additional" />
+            {/* Tabs code start*/}
+            <div className="my-3 d-flex flex-nowrap justify-content-start gap-3 scrollbarDiv">
+                <Tabs text="Personal info" active={false} link="/booking" />
+                <Tabs text="Travel Details" active={false} link="/booking/travel-details" />
+                <Tabs text="Pickup & Drop-off" active={true} link="/booking/pickdrop" />
+                <Tabs text="Choose a ride" active={false} link="/booking/select-car" />
+                <Tabs text="Comments" active={false} link="/booking/additional" />
             </div>
             {/* Tabs code end*/}
             {/* progress code for lg-screen start */}
@@ -58,7 +107,7 @@ export default function PickDrop() {
                     <div >
                         <div className="mb-3 font-size-14">
                             <label htmlFor="Pickup" className="form-label fw-bold">
-                            Pickup Address
+                                Pickup Address
                             </label>
                             <input
                                 type="text"
@@ -69,10 +118,11 @@ export default function PickDrop() {
                                 value={pickup}
                                 onChange={(e) => setPickup(e.target.value)}
                             />
+                            {errors.pickup && <small className="text-danger">{errors.pickup}</small>}
                         </div>
                         <div className="mb-3 font-size-14">
                             <label htmlFor="dropOff" className="form-label fw-bold">
-                            Drop-off Address
+                                Drop-off Address
                             </label>
                             <input
                                 type="text"
@@ -83,34 +133,21 @@ export default function PickDrop() {
                                 value={dropOff}
                                 onChange={(e) => setDropOff(e.target.value)}
                             />
+                            {errors.dropOff && <small className="text-danger">{errors.dropOff}</small>}
                         </div>
-                       
-                        
-                        {/* <div className="mb-3 font-size-14 col-lg-6 ">
-                            <label htmlFor="reservation" className="form-label fw-bold">
-                                Best way to connect
-                            </label>
-                            <select name="typeOfReservation" id="reservation" value={typeOfReservation} className="form-select" onChange={(e) => {
-                                console.log(e.target.value);
-
-                                setTypeOfReservation(e.target.value)
-                            }}>
-                                <option value="one-way" >One Way</option>
-                                <option value="round-trip">Round Trip</option>
-                            </select>
-
-                        </div> */}
                     </div>
+                    {/* buttons */}
                     <div className="py-4">
                         <div className="d-flex justify-content-between gap-3">
-                        <button type="button" onClick={() => router.back()} className="btn bg-custom-gray-light text-white w-50 fw-bold">Back</button>
-                            <Link href={"/select-car"} className="btn bg-custom-red text-white w-50 fw-bold" type="submit">Continue</Link>
+                            <button type="button" onClick={() => router.back()} className="btn bg-custom-gray-light text-white w-50 fw-bold">Back</button>
+                            <button className="btn bg-custom-red text-white w-50 fw-bold" type="submit" >Continue</button>
                         </div>
                     </div>
 
                 </form>
+                {/* image part */}
                 <div className="d-none d-lg-flex col-lg-6 ">
-                    <Image src="Frederick_travel_details.svg" alt="Frederick_travel_details" width={500} height={500} className="img-fluid" />
+                    <Image src="/Frederick_travel_details.svg" alt="Frederick_travel_details" width={500} height={500} className="img-fluid" />
                 </div>
             </div>
         </div>

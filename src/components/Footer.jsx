@@ -15,7 +15,7 @@ export default function Footer() {
                     <div className="col-md-3 me-2">
                         <div className="d-flex align-items-center mb-3">
                             <Image
-                                src="frederick_logo.svg"
+                                src="/frederick_logo.svg"
                                 alt="Frederick Sedan Service"
                                 width={146}
                                 height={65}
